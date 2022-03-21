@@ -36,41 +36,63 @@ subparser = parser.add_subparsers(
     help='[%(prog)s markets -h] for more help')
 
 # Option MARKETS
-markets = subparser.add_parser('markets', help='List all supported coins price, market cap, volume, and market related data')
-cmd = markets.add_argument_group('Markets Options', 'Use this to obtain all the coins market data (price, market cap, volume)')
-cmd.add_argument('-c', '--vs_currencies', default='usd', metavar='usd',
-                 help='The target currency of market data (usd, eur, jpy, etc.)')
-cmd.add_argument('-o', '--order', default='market_cap_desc', metavar='market_cap_desc',
-                 help='''valid values: market_cap_desc, gecko_desc, gecko_asc, 
-                 market_cap_asc, market_cap_desc, volume_asc, volume_desc, 
+markets = subparser.add_parser('markets',
+                               help='List all supported coins price, market '
+                                    'cap, volume, and market related data')
+cmd = markets.add_argument_group('Markets Options',
+                                 'Use this to obtain all the coins market data'
+                                 ' (price, market cap, volume)')
+cmd.add_argument('-c', '--vs_currencies',
+                 default='usd',
+                 metavar='usd',
+                 help='The target currency of '
+                      'market data (usd, eur, jpy, etc.) default is usd')
+cmd.add_argument('-o', '--order',
+                 default='market_cap_desc',
+                 metavar='market_cap_desc',
+                 help='''valid values: market_cap_desc, gecko_desc, gecko_asc,
+                 market_cap_asc, market_cap_desc, volume_asc, volume_desc,
                  id_asc, id_desc''')
-cmd.add_argument('-p', '--per-page', default='250', metavar='250',
+cmd.add_argument('-p', '--per-page',
+                 default='250',
+                 metavar='250',
                  help='''valid values: 1..250 Total results per page''')
-cmd.add_argument('-P', '--page', default='1', metavar='1',
+cmd.add_argument('-P', '--page',
+                 default='1',
+                 metavar='1',
                  help='Page through results defaults is 1')
-cmd.add_argument('-s', '--sparkline', default='false', metavar='false',
-                 help='Include sparkline 7 days data (eg.true, false) default is false')
+cmd.add_argument('-s', '--sparkline',
+                 default='false',
+                 metavar='false',
+                 help='Include sparkline 7 days data '
+                      '(eg.true, false) default is false')
 
 
 # Option PRICE
-price = subparser.add_parser('price', help='Get the current price of any cryptocurrencies in any other supported currencies that you need.')
+price = subparser.add_parser('price',
+                             help='Get the current price of any '
+                                  'cryptocurrencies in any other supported '
+                                  'currencies that you need.')
 cmd = price.add_argument_group('Price Options')
 cmd.add_argument('-id', '--ids')
 
 
 # Information version of the python file
-parser.add_argument('-V', '--version', action='version', version='%(prog)s version 0.1')
+parser.add_argument('-V', '--version',
+                    action='version',
+                    version='%(prog)s version 0.1')
 
 # Group for verbose or quiet
 output = parser.add_mutually_exclusive_group()
 
 # output.add_argument('-q', '--quiet', action='store_true', help='print quiet')
-output.add_argument('-v', '--verbose', action='store_true',
+output.add_argument('-v', '--verbose',
+                    action='store_true',
                     help='increase output visibility')
 args = parser.parse_args()
 
 
-# Requests URL server Coingecko
+# Requests URL from CoinGecko server
 requests_ping = 'https://api.coingecko.com/api/v3/ping'
 requests_sp = 'https://api.coingecko.com/api/v3/simple/supported_vs_currencies'
 
@@ -119,31 +141,71 @@ def supported_currencies():
     return answer_sp
 
 
-def markets(vs_currencies='usd', order='market_cap_desc', per_page='250', page='1', sparkline='false'):
+def markets(vs_currencies='usd', order='market_cap_desc',
+            per_page='250', page='1', sparkline='false'):
     """
     List all supported coins price, market cap, volume, and market related data
+    https://www.delftstack.com/howto/python-pandas/
     """
+    cg_markets = f'https://api.coingecko.com/api/v3/coins/' \
+                 f'markets?vs_currency={vs_currencies}&' \
+                 f'order={order}&' \
+                 f'per_page={per_page}&' \
+                 f'page={page}&' \
+                 f'sparkline={sparkline}'
 
-    # vs_currencies = 'usd'
-    # order = 'market_cap_desc'
-    # per_page = '250'
-    # page = '1'
-    # sparkline = 'false'
-
-    cg_markets = f'https://api.coingecko.com/api/v3/coins/markets?vs_currency={vs_currencies}' \
-                 f'&order={order}&per_page={per_page}&page={page}&sparkline={sparkline}'
     # Source all data in terminal
     # answer_markets = requests.get(cg_markets).json()
+
+    # Config for display for DataFrame
+    # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
+    # pandas.set_option('display.max_rows', None)
+    # pandas.set_option('display.max_columns', None)
+    # pandas.set_option('display.width', 2000)
+    # pandas.set_option('display.float_format', '{:20,.2f}'.format)
+    # pandas.set_option('display.max_colwidth', None)
+
+    # Reset display to the defaults
+    # pandas.reset_option('display.max_rows')
+    # pandas.reset_option('display.max_columns')
+    # pandas.reset_option('display.width')
+    # pandas.reset_option('display.float_format')
+    # pandas.reset_option('display.max_colwidth')
 
     # Convert json format on DataFrame in pandas
     pd_markets = pandas.read_json(cg_markets, orient='records')
 
-    # Delete 'image' column in the data Frame
+    # For delete column in DataFrame
     # https://stackoverflow.com/questions/13411544/delete-a-column-from-a-pandas-dataframe
-    pd_markets_df = pandas.DataFrame(data=pd_markets)
-    pd_markets_df.drop('image', axis=1, inplace=True)
+    #
+    # Create pandas DataFrame
+    pd_markets_df = pandas.DataFrame(data=pd_markets,
+                                     columns=['id',
+                                              'symbol',
+                                              'name',
+                                              'current_price',
+                                              'market_cap',
+                                              'market_cap_rank',
+                                              'fully_diluted_valuation',
+                                              'total_volume',
+                                              'high_24h',
+                                              'low_24h',
+                                              'price_change_24h',
+                                              'price_change_percentage_24h',
+                                              'market_cap_change_24h',
+                                              'market_cap_change_percentage_24h',
+                                              'circulating_supply',
+                                              'total_supply',
+                                              'max_supply',
+                                              'last_updated'])
 
-    return pd_markets_df
+    # Sets the 'market_cap_rank' column as an index of the my_df DataFrame
+    pd_markets_df_rank = pd_markets_df.set_index('market_cap_rank')
+
+    # Delete 'image' column in the data Frame
+    # pd_markets_df_rank.drop('image', axis=1, inplace=True)
+
+    return pd_markets_df_rank
 
 # Only if i use the 'quiet' argument
 #################################################################
@@ -178,5 +240,6 @@ else:
                           sparkline=args.sparkline))
 
         except Exception as error:
-            print(f'\nWrong request, check the completeness of the arguments and start again\n'
+            print(f'\nWrong request, check the completeness '
+                  f'of the arguments and start again\n'
                   f'Error Message : {error}')
