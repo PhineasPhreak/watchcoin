@@ -47,6 +47,11 @@ cmd.add_argument('-c', '--vs_currencies',
                  metavar='usd',
                  help='The target currency of '
                       'market data (usd, eur, jpy, etc.) default is usd')
+cmd.add_argument('-C', '--category',
+                 default='false',
+                 metavar='None',
+                 help='filter by coin category. '
+                      'Refer to (/coin/categories/list) default is None')
 cmd.add_argument('-o', '--order',
                  default='market_cap_desc',
                  metavar='market_cap_desc',
@@ -141,18 +146,28 @@ def supported_currencies():
     return answer_sp
 
 
-def markets(vs_currencies='usd', order='market_cap_desc',
+def markets(category, vs_currencies='usd', order='market_cap_desc',
             per_page='250', page='1', sparkline='false'):
     """
     List all supported coins price, market cap, volume, and market related data
     https://www.delftstack.com/howto/python-pandas/
     """
-    cg_markets = f'https://api.coingecko.com/api/v3/coins/' \
-                 f'markets?vs_currency={vs_currencies}&' \
-                 f'order={order}&' \
-                 f'per_page={per_page}&' \
-                 f'page={page}&' \
-                 f'sparkline={sparkline}'
+
+    if category == 'false':
+        cg_markets = f'https://api.coingecko.com/api/v3/coins/' \
+                     f'markets?vs_currency={vs_currencies}&' \
+                     f'order={order}&' \
+                     f'per_page={per_page}&' \
+                     f'page={page}&' \
+                     f'sparkline={sparkline}'
+    else:
+        cg_markets = f'https://api.coingecko.com/api/v3/coins/' \
+                     f'markets?vs_currency={vs_currencies}&' \
+                     f'category={category}&' \
+                     f'order={order}&' \
+                     f'per_page={per_page}&' \
+                     f'page={page}&' \
+                     f'sparkline={sparkline}'
 
     # Source all data in terminal
     # answer_markets = requests.get(cg_markets).json()
@@ -180,24 +195,25 @@ def markets(vs_currencies='usd', order='market_cap_desc',
     #
     # Create pandas DataFrame
     pd_markets_df = pandas.DataFrame(data=pd_markets,
-                                     columns=['id',
-                                              'symbol',
-                                              'name',
-                                              'current_price',
-                                              'market_cap',
-                                              'market_cap_rank',
-                                              'fully_diluted_valuation',
-                                              'total_volume',
-                                              'high_24h',
-                                              'low_24h',
-                                              'price_change_24h',
-                                              'price_change_percentage_24h',
-                                              'market_cap_change_24h',
-                                              'market_cap_change_percentage_24h',
-                                              'circulating_supply',
-                                              'total_supply',
-                                              'max_supply',
-                                              'last_updated'])
+                                     columns=[
+                                         'id',
+                                         'symbol',
+                                         'name',
+                                         'current_price',
+                                         'market_cap',
+                                         'market_cap_rank',
+                                         'fully_diluted_valuation',
+                                         'total_volume',
+                                         'high_24h',
+                                         'low_24h',
+                                         'price_change_24h',
+                                         'price_change_percentage_24h',
+                                         'market_cap_change_24h',
+                                         'market_cap_change_percentage_24h',
+                                         'circulating_supply',
+                                         'total_supply',
+                                         'max_supply',
+                                         'last_updated'])
 
     # Sets the 'market_cap_rank' column as an index of the my_df DataFrame
     pd_markets_df_rank = pd_markets_df.set_index('market_cap_rank')
@@ -230,10 +246,12 @@ else:
         print(supported_currencies())
 
     elif args.command == 'markets':
-        check_args(args_str=[args.vs_currencies, args.order, args.sparkline],
+        check_args(args_str=[args.vs_currencies, args.category,
+                             args.order, args.sparkline],
                    args_int=[args.per_page, args.page])
         try:
             print(markets(vs_currencies=args.vs_currencies,
+                          category=args.category,
                           order=args.order,
                           per_page=args.per_page,
                           page=args.page,
