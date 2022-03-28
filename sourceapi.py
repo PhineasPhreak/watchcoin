@@ -9,6 +9,7 @@ import pandas
 # Single requests URL from CoinGecko API
 requests_ping = 'https://api.coingecko.com/api/v3/ping'
 requests_sp = 'https://api.coingecko.com/api/v3/simple/supported_vs_currencies'
+requests_sl = 'https://api.coingecko.com/api/v3/coins/categories/list'
 
 
 def check_args(args_str, args_int):
@@ -53,6 +54,19 @@ def supported_currencies():
     cg_sp = requests_sp
     answer_sp = requests.get(cg_sp).json()
     return answer_sp
+
+
+def categories_list():
+    """
+    List all categories
+    """
+    cg_sl = requests_sl
+    pandas.set_option('display.max_rows', None)
+    pd_categories = pandas.read_json(cg_sl, orient='records')
+    pd_categories_df = pandas.DataFrame(data=pd_categories,
+                                        columns=['category_id', 'name'])
+    pd_markets_df_index = pd_categories_df.set_index('name')
+    return pd_markets_df_index
 
 
 def markets(category, vs_currencies='usd', order='market_cap_desc',

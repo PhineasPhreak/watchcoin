@@ -22,9 +22,13 @@ ping.add_argument('-p', '--ping', action='store_true',
 
 # Command for SUPPORTED_VS_CURRENCIES
 sc = parser.add_argument_group()
-sc.add_argument('-s', '--supported_currencies', action='store_true',
+sc.add_argument('-s', '--supported-currencies', action='store_true',
                 help='Get list of supported_vs_currencies')
 
+# Command for categories_list
+sl = parser.add_argument_group()
+sl.add_argument('-l', '--categories-list', action='store_true',
+                help='List all categories')
 
 # For grouping subparser arguments
 # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -117,6 +121,9 @@ else:
 
     elif args.supported_currencies:
         print(sourceapi.supported_currencies())
+
+    elif args.categories_list:
+        print(sourceapi.categories_list())
 
     elif args.command == 'markets':
         sourceapi.check_args(args_str=[args.vs_currencies, args.category,
