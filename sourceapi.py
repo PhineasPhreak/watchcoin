@@ -56,17 +56,23 @@ def supported_currencies():
     return answer_sp
 
 
-def categories_list():
+def categories_list(output_format):
     """
     List all categories
     """
-    cg_sl = requests_sl
-    pandas.set_option('display.max_rows', None)
-    pd_categories = pandas.read_json(cg_sl, orient='records')
-    pd_categories_df = pandas.DataFrame(data=pd_categories,
-                                        columns=['category_id', 'name'])
-    pd_markets_df_index = pd_categories_df.set_index('name')
-    return pd_markets_df_index
+    if output_format == 'table':
+        cg_sl = requests_sl
+        pandas.set_option('display.max_rows', None)
+        pd_categories = pandas.read_json(cg_sl, orient='records')
+        pd_categories_df = pandas.DataFrame(data=pd_categories,
+                                            columns=['category_id', 'name'])
+        pd_markets_df_index = pd_categories_df.set_index('name')
+        return pd_markets_df_index
+
+    elif output_format == 'json':
+        cg_sl = requests_sl
+        answer_sl = requests.get(cg_sl).json()
+        return answer_sl
 
 
 def markets(category, vs_currencies='usd', order='market_cap_desc',

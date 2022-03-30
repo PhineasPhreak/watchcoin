@@ -26,9 +26,11 @@ sc.add_argument('-s', '--supported-currencies', action='store_true',
                 help='Get list of supported_vs_currencies')
 
 # Command for categories_list
-sl = parser.add_argument_group()
+sl = parser.add_argument_group('View categories lists options')
 sl.add_argument('-l', '--categories-list', action='store_true',
                 help='List all categories')
+sl.add_argument('-f', '--format', choices=['table', 'json'], default='table',
+                help='The format is "json", "table" default is "table"')
 
 # For grouping subparser arguments
 # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -123,7 +125,7 @@ else:
         print(sourceapi.supported_currencies())
 
     elif args.categories_list:
-        print(sourceapi.categories_list())
+        print(sourceapi.categories_list(output_format=args.format))
 
     elif args.command == 'markets':
         sourceapi.check_args(args_str=[args.vs_currencies, args.category,
