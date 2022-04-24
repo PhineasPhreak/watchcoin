@@ -13,14 +13,14 @@ Used **Python3.8**
 
 ## Installation
 Use the script `start.sh`
-```console
+```shell
 ./start.sh
 ```
 
 or
 
 Install manually
-```console
+```shell
 python3 -m venv .env  # Create virtual environment
 source .env/bin/activate  # Active the virtual environment
 echo $VIRTUAL_ENV  # Check the virtual environment
