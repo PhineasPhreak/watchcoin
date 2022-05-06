@@ -10,7 +10,7 @@ requirements='requirements.txt'
 
 # Check if a directory exists
 if [[ -d $env ]]; then
-    echo "[*] Directiry '$env' exist"
+    echo "[*] Directory '$env' exist"
     exit 1
 else
     # Create virtual environment with python3 and pip
