@@ -75,8 +75,9 @@ def categories_list(output_format):
         return answer_sl
 
 
-def markets(category, vs_currencies='usd', order='market_cap_desc',
-            per_page='250', page='1', sparkline='false'):
+def markets(category, rows, columns, vs_currencies='usd',
+            order='market_cap_desc', per_page='250', page='1',
+            sparkline='false'):
     """
     List all supported coins price, market cap, volume, and market related data
     https://www.delftstack.com/howto/python-pandas/
@@ -101,20 +102,25 @@ def markets(category, vs_currencies='usd', order='market_cap_desc',
     # Source all data in terminal
     # answer_markets = requests.get(cg_markets).json()
 
-    # Config for display for DataFrame
-    # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
-    # pandas.set_option('display.max_rows', None)
-    # pandas.set_option('display.max_columns', None)
-    # pandas.set_option('display.width', 2000)
-    # pandas.set_option('display.float_format', '{:20,.2f}'.format)
-    # pandas.set_option('display.max_colwidth', None)
+    if rows and columns:
+        # Reset display to the defaults
+        pandas.reset_option('display.max_rows')
+        pandas.reset_option('display.max_columns')
+        pandas.reset_option('display.width')
+        pandas.reset_option('display.float_format')
+        pandas.reset_option('display.max_colwidth')
 
-    # Reset display to the defaults
-    # pandas.reset_option('display.max_rows')
-    # pandas.reset_option('display.max_columns')
-    # pandas.reset_option('display.width')
-    # pandas.reset_option('display.float_format')
-    # pandas.reset_option('display.max_colwidth')
+        # Config for display for DataFrame
+        # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
+        pandas.set_option('display.max_rows', int(rows))
+        pandas.set_option('display.max_columns', int(columns))
+        pandas.set_option('display.width', 2000)
+        pandas.set_option('display.float_format', '{:20,.2f}'.format)
+        pandas.set_option('display.max_colwidth', None)
+
+        # with pandas.option_context('display.max_rows', int(rows),
+        #                            'display.max_columns', int(columns)):
+        #     pass
 
     # Convert json format on DataFrame in pandas
     pd_markets = pandas.read_json(cg_markets, orient='records')

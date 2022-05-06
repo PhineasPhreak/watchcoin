@@ -26,7 +26,7 @@ sc.add_argument('-s', '--supported-currencies', action='store_true',
                 help='Get list of supported_vs_currencies')
 
 # Command for categories_list
-sl = parser.add_argument_group('View categories lists options')
+sl = parser.add_argument_group('View categories lists')
 sl.add_argument('-l', '--categories-list', action='store_true',
                 help='List all categories')
 sl.add_argument('-f', '--format', choices=['table', 'json'], default='table',
@@ -44,38 +44,50 @@ subparser = parser.add_subparsers(
 markets = subparser.add_parser('markets',
                                help='List all supported coins price, market '
                                     'cap, volume, and market related data')
-cmd = markets.add_argument_group('Markets Options',
-                                 'Use this to obtain all the coins market data'
-                                 ' (price, market cap, volume)')
-cmd.add_argument('-c', '--vs_currencies',
-                 default='usd',
-                 metavar='usd',
-                 help='The target currency of '
-                      'market data (usd, eur, jpy, etc.) default is usd')
-cmd.add_argument('-C', '--category',
-                 default='false',
-                 metavar='None',
-                 help='filter by coin category. '
-                      'Refer to (/coin/categories/list) default is None')
-cmd.add_argument('-o', '--order',
-                 default='market_cap_desc',
-                 metavar='market_cap_desc',
-                 help='''valid values: market_cap_desc, gecko_desc, gecko_asc,
-                 market_cap_asc, market_cap_desc, volume_asc, volume_desc,
-                 id_asc, id_desc''')
-cmd.add_argument('-p', '--per-page',
-                 default='250',
-                 metavar='250',
-                 help='''valid values: 1..250 Total results per page''')
-cmd.add_argument('-P', '--page',
-                 default='1',
-                 metavar='1',
-                 help='Page through results defaults is 1')
-cmd.add_argument('-s', '--sparkline',
-                 default='false',
-                 metavar='false',
-                 help='Include sparkline 7 days data '
-                      '(eg.true, false) default is false')
+mo = markets.add_argument_group('Markets Options',
+                                'Use this to obtain all the coins market data'
+                                ' (price, market cap, volume)')
+mo.add_argument('-c', '--vs_currencies',
+                default='usd',
+                metavar='usd',
+                help='The target currency of '
+                     'market data (usd, eur, jpy, etc.) default is usd')
+mo.add_argument('-C', '--category',
+                default='false',
+                metavar='None',
+                help='filter by coin category. '
+                     'Refer to (/coin/categories/list) default is None')
+mo.add_argument('-o', '--order',
+                default='market_cap_desc',
+                metavar='market_cap_desc',
+                help='''valid values: market_cap_desc, gecko_desc, gecko_asc,
+                market_cap_asc, market_cap_desc, volume_asc, volume_desc,
+                id_asc, id_desc''')
+mo.add_argument('-p', '--per-page',
+                default='250',
+                metavar='250',
+                help='''valid values: 1..250 Total results per page''')
+mo.add_argument('-P', '--page',
+                default='1',
+                metavar='1',
+                help='Page through results defaults is 1')
+mo.add_argument('-s', '--sparkline',
+                default='false',
+                metavar='false',
+                help='Include sparkline 7 days data '
+                     '(eg.true, false) default is false')
+
+out_o = markets.add_argument_group('Output Options',
+                                   'Configuration of the output display')
+out_o.add_argument('-r', '--rows',
+                   default='10',
+                   metavar='numbers',
+                   help='Show the numbers of line for the table')
+
+out_o.add_argument('-m', '--max-columns',
+                   default='0',
+                   metavar='numbers',
+                   help='Show the max columns for the table')
 
 
 # Option PRICE
@@ -83,8 +95,8 @@ price = subparser.add_parser('price',
                              help='Get the current price of any '
                                   'cryptocurrencies in any other supported '
                                   'currencies that you need.')
-cmd = price.add_argument_group('Price Options')
-cmd.add_argument('-id', '--ids')
+p_cmd = price.add_argument_group('Price Options')
+p_cmd.add_argument('-id', '--ids')
 
 
 # Information version of the python file
@@ -130,10 +142,13 @@ else:
     elif args.command == 'markets':
         sourceapi.check_args(args_str=[args.vs_currencies, args.category,
                                        args.order, args.sparkline],
-                             args_int=[args.per_page, args.page])
+                             args_int=[args.per_page, args.page, args.rows,
+                                       args.max_columns])
         try:
             print(sourceapi.markets(vs_currencies=args.vs_currencies,
                                     category=args.category,
+                                    rows=args.rows,
+                                    columns=args.max_columns,
                                     order=args.order,
                                     per_page=args.per_page,
                                     page=args.page,
