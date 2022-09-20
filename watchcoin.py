@@ -7,7 +7,7 @@
 
 import argparse
 import textwrap
-import sourceapi
+from sourceapi import Utils
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
@@ -23,14 +23,12 @@ ping.add_argument('-p', '--ping', action='store_true',
 # Command for SUPPORTED_VS_CURRENCIES
 sc = parser.add_argument_group()
 sc.add_argument('-s', '--supported-currencies', action='store_true',
-                help='Get list of supported_vs_currencies')
+                help='Get list of supported_vs_currencies in json format')
 
 # Command for categories_list
 sl = parser.add_argument_group('View categories lists')
-sl.add_argument('-l', '--categories-list', action='store_true',
-                help='List all categories')
-sl.add_argument('-f', '--format', choices=['table', 'json'], default='table',
-                help='The format is "json", "table" default is "table"')
+sl.add_argument('-f', '--format', choices=['table', 'json'],
+                help='The format are "json", "table"')
 
 # For grouping subparser arguments
 # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -83,7 +81,6 @@ out_o.add_argument('-r', '--rows',
                    default='10',
                    metavar='numbers',
                    help='Show the numbers of line for the table')
-
 out_o.add_argument('-m', '--max-columns',
                    default='0',
                    metavar='numbers',
@@ -96,13 +93,42 @@ price = subparser.add_parser('price',
                                   'cryptocurrencies in any other supported '
                                   'currencies that you need.')
 p_cmd = price.add_argument_group('Price Options')
-p_cmd.add_argument('-id', '--ids')
+p_cmd.add_argument('-id', '--ids',
+                   default='bitcoin',
+                   metavar='string',
+                   # required=True,
+                   help='id of coins, comma-separated if querying more than'
+                        ' 1 coin *refers to (coins/list) by default bitcoin')
+p_cmd.add_argument('-c', '--vs-currencies',
+                   default='usd',
+                   # required=True,
+                   metavar='string',
+                   help='vs_currency of coins, comma-separated if querying'
+                        ' more than 1 vs_currency *refers to'
+                        ' (simple/supported_vs_currencies) by default usd')
+p_cmd.add_argument('-m', '--include-market-cap',
+                   default='true',
+                   metavar='boolean',
+                   help='true/false to include market_cap, default: true')
+p_cmd.add_argument('-r', '--include-24hr-vol',
+                   default='true',
+                   metavar='boolean',
+                   help='true/false to include 24hr_vol, default: true')
+p_cmd.add_argument('-C', '--include-24hr-change',
+                   default='true',
+                   metavar='boolean',
+                   help='true/false to include 24hr_change, default: true')
+p_cmd.add_argument('-l', '--include-last-updated-at',
+                   default='true',
+                   metavar='boolean',
+                   help='true/false to include last_updated_at of price, '
+                        'default: true')
 
 
 # Information version of the python file
 parser.add_argument('-V', '--version',
                     action='version',
-                    version='%(prog)s version 0.1')
+                    version='%(prog)s version 0.3')
 
 # Group for verbose or quiet
 output = parser.add_mutually_exclusive_group()
@@ -124,37 +150,53 @@ args = parser.parse_args()
 #         print(supported_currencies(visibility='quiet'))
 #################################################################
 
+# Import of the Utils class present in the sourceapi.py file
+# Not useful if i use staticmethode
+# utils = Utils()
 
 if args.verbose:
     if args.ping:
-        print(sourceapi.check_api(visibility='verbose'))
+        print(Utils.check_api(visibility='verbose'))
 
 else:
     if args.ping:
-        print(sourceapi.check_api())
+        print(Utils.check_api())
 
     elif args.supported_currencies:
-        print(sourceapi.supported_currencies())
+        print(Utils.supported_currencies())
 
-    elif args.categories_list:
-        print(sourceapi.categories_list(output_format=args.format))
+    elif args.format:
+        print(Utils.categories_list(output_format=args.format))
 
     elif args.command == 'markets':
-        sourceapi.check_args(args_str=[args.vs_currencies, args.category,
-                                       args.order, args.sparkline],
-                             args_int=[args.per_page, args.page, args.rows,
-                                       args.max_columns])
+        print(Utils.check_args(args_str=[args.vs_currencies, args.category,
+                                         args.order, args.sparkline],
+                               args_int=[args.per_page, args.page, args.rows,
+                                         args.max_columns]))
+
         try:
-            print(sourceapi.markets(vs_currencies=args.vs_currencies,
-                                    category=args.category,
-                                    rows=args.rows,
-                                    columns=args.max_columns,
-                                    order=args.order,
-                                    per_page=args.per_page,
-                                    page=args.page,
-                                    sparkline=args.sparkline))
+            print(Utils.markets(vs_currencies=args.vs_currencies,
+                                category=args.category,
+                                rows=args.rows,
+                                columns=args.max_columns,
+                                order=args.order,
+                                per_page=args.per_page,
+                                page=args.page,
+                                sparkline=args.sparkline))
 
         except Exception as error:
             print(f'\nWrong request, check the completeness '
                   f'of the arguments and start again\n'
                   f'Error Message : {error}')
+
+    elif args.command == 'price':
+        try:
+            print(Utils.price(ids=args.ids,
+                              vs_currencies=args.vs_currencies,
+                              include_market_cap=args.include_market_cap,
+                              include_24hr_vol=args.include_24hr_vol,
+                              include_24hr_change=args.include_24hr_change,
+                              include_last_updated_at=args.include_last_updated_at))
+
+        except Exception as error:
+            print(error)
