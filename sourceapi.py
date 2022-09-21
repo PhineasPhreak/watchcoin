@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import socket
+
 
 import requests
-import pandas
+import pandas as pd
 import timeit
+
 
 # LISTING POSSIBLE ERROR:
 # requests.exceptions.ConnectionError
@@ -74,11 +75,11 @@ class Utils:
         """
         if output_format == 'table':
             cg_sl = Utils.requests_sl
-            pandas.set_option('display.max_rows', None)
-            pd_categories = pandas.read_json(cg_sl, orient='records')
-            pd_categories_df = pandas.DataFrame(data=pd_categories,
-                                                columns=['category_id',
-                                                         'name'])
+            pd.set_option('display.max_rows', None)
+            pd_categories = pd.read_json(cg_sl, orient='records')
+            pd_categories_df = pd.DataFrame(data=pd_categories,
+                                            columns=['category_id',
+                                                     'name'])
             pd_markets_df_index = pd_categories_df.set_index('name')
             return pd_markets_df_index
 
@@ -118,33 +119,33 @@ class Utils:
 
         if rows and columns:
             # Reset display to the defaults
-            pandas.reset_option('display.max_rows')
-            pandas.reset_option('display.max_columns')
-            pandas.reset_option('display.width')
-            pandas.reset_option('display.float_format')
-            pandas.reset_option('display.max_colwidth')
+            pd.reset_option('display.max_rows')
+            pd.reset_option('display.max_columns')
+            pd.reset_option('display.width')
+            pd.reset_option('display.float_format')
+            pd.reset_option('display.max_colwidth')
 
             # Config for display for DataFrame
             # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
-            pandas.set_option('display.max_rows', int(rows))
-            pandas.set_option('display.max_columns', int(columns))
-            pandas.set_option('display.width', 2000)
-            pandas.set_option('display.float_format', '{:20,.2f}'.format)
-            pandas.set_option('display.max_colwidth', None)
+            pd.set_option('display.max_rows', int(rows))
+            pd.set_option('display.max_columns', int(columns))
+            pd.set_option('display.width', 2000)
+            pd.set_option('display.float_format', '{:20,.2f}'.format)
+            pd.set_option('display.max_colwidth', None)
 
             # with pandas.option_context('display.max_rows', int(rows),
             #                            'display.max_columns', int(columns)):
             #     pass
 
         # Convert json format on DataFrame in pandas
-        pd_markets = pandas.read_json(cg_markets, orient='records')
+        pd_markets = pd.read_json(cg_markets, orient='records')
 
         # For delete column in DataFrame
         # https://stackoverflow.com/questions/13411544/delete-a-column-from-a-pandas-dataframe
         #
         # Create pandas DataFrame
-        pd_markets_df = pandas.DataFrame(data=pd_markets,
-                                         columns=[
+        pd_markets_df = pd.DataFrame(data=pd_markets,
+                                     columns=[
                                              'id',
                                              'symbol',
                                              'name',
@@ -188,23 +189,23 @@ class Utils:
                    f'include_last_updated_at={include_last_updated_at}'
 
         # Reset display to the defaults
-        pandas.reset_option('display.max_rows')
-        pandas.reset_option('display.max_columns')
-        pandas.reset_option('display.width')
-        pandas.reset_option('display.float_format')
-        pandas.reset_option('display.max_colwidth')
+        pd.reset_option('display.max_rows')
+        pd.reset_option('display.max_columns')
+        pd.reset_option('display.width')
+        pd.reset_option('display.float_format')
+        pd.reset_option('display.max_colwidth')
 
         # Config for display for DataFrame
         # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
-        pandas.set_option('display.max_rows', None)
-        pandas.set_option('display.max_columns', None)
-        pandas.set_option('display.width', 2000)
-        pandas.set_option('display.float_format', '{:20,.2f}'.format)
-        pandas.set_option('display.max_colwidth', None)
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.width', 2000)
+        pd.set_option('display.float_format', '{:20,.2f}'.format)
+        pd.set_option('display.max_colwidth', None)
 
-        pd_price = pandas.read_json(cg_price, orient='records')
-        pd_price_df = pandas.DataFrame(data=pd_price,
-                                       columns=[
+        pd_price = pd.read_json(cg_price, orient='records')
+        pd_price_df = pd.DataFrame(data=pd_price,
+                                   columns=[
                                            f'{ids}',
                                            # f'{vs_currencies}',
                                            # 'include_market_cap',
