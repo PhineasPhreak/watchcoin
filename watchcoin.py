@@ -181,10 +181,10 @@ else:
         print(Utils.categories_list(output_format=args.format))
 
     elif args.command == 'markets':
-        print(Utils.check_args(args_str=[args.vs_currencies, args.category,
-                                         args.order, args.sparkline],
-                               args_int=[args.per_page, args.page, args.rows,
-                                         args.max_columns]))
+        Utils.check_args(args_str=[args.vs_currencies, args.category,
+                                   args.order, args.sparkline],
+                         args_int=[args.per_page, args.page, args.rows,
+                                   args.max_columns])
 
         try:
             print(Utils.markets(vs_currencies=args.vs_currencies,
