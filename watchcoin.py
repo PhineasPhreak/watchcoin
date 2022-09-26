@@ -7,7 +7,7 @@
 
 import argparse
 import textwrap
-from sourceapi import Utils
+from sourceapi import Utils, DataFrameCustom
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
@@ -29,6 +29,16 @@ sc.add_argument('-s', '--supported-currencies', action='store_true',
 sl = parser.add_argument_group('View categories lists')
 sl.add_argument('-f', '--format', choices=['table', 'json'],
                 help='The format are "json", "table"')
+sl.add_argument('-r', '--rows',
+                default='25',
+                type=int,
+                metavar='numbers',
+                help='Show the numbers of line for the table')
+sl.add_argument('-m', '--max-columns',
+                default='1',
+                type=int,
+                metavar='numbers',
+                help='Show the max columns for the table')
 
 # For grouping subparser arguments
 # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -166,6 +176,8 @@ else:
         print(Utils.supported_currencies())
 
     elif args.format:
+        dfc = DataFrameCustom(rows=args.rows, max_columns=args.max_columns)
+        dfc.show_table()
         print(Utils.categories_list(output_format=args.format))
 
     elif args.command == 'markets':

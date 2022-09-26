@@ -4,12 +4,37 @@
 
 import requests
 import pandas as pd
-import timeit
-
+from timeit import timeit
 
 # LISTING POSSIBLE ERROR:
 # requests.exceptions.ConnectionError
 # socket.gaierror
+
+
+class DataFrameCustom:
+    """
+    Modification of a pandas array for rows and columns option
+    """
+    def __init__(self, rows, max_columns):
+        """Initialization"""
+        self.rows = rows
+        self.max_columns = max_columns
+
+    def show_table(self):
+        # Reset display to the defaults
+        pd.reset_option('display.max_rows')
+        pd.reset_option('display.max_columns')
+        pd.reset_option('display.width')
+        pd.reset_option('display.float_format')
+        pd.reset_option('display.max_colwidth')
+
+        # Config for display for DataFrame
+        # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
+        pd.set_option('display.max_rows', int(self.rows))
+        pd.set_option('display.max_columns', int(self.max_columns))
+        pd.set_option('display.width', 2000)
+        pd.set_option('display.float_format', '{:20,.2f}'.format)
+        pd.set_option('display.max_colwidth', None)
 
 
 class Utils:
@@ -50,7 +75,7 @@ class Utils:
         """
         cg_ping = Utils.requests_ping
         answer_ping = requests.get(cg_ping).status_code
-        tmp_execution = timeit.timeit() * 60
+        tmp_execution = timeit() * 60
         tmp_second = "{:,.2f}sec".format(tmp_execution)
 
         if visibility == 'quiet':
@@ -75,7 +100,7 @@ class Utils:
         """
         if output_format == 'table':
             cg_sl = Utils.requests_sl
-            pd.set_option('display.max_rows', None)
+            # pd.set_option('display.max_rows', None)
             pd_categories = pd.read_json(cg_sl, orient='records')
             pd_categories_df = pd.DataFrame(data=pd_categories,
                                             columns=['category_id',
@@ -118,20 +143,8 @@ class Utils:
         # answer_markets = requests.get(cg_markets).json()
 
         if rows and columns:
-            # Reset display to the defaults
-            pd.reset_option('display.max_rows')
-            pd.reset_option('display.max_columns')
-            pd.reset_option('display.width')
-            pd.reset_option('display.float_format')
-            pd.reset_option('display.max_colwidth')
-
-            # Config for display for DataFrame
-            # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
-            pd.set_option('display.max_rows', int(rows))
-            pd.set_option('display.max_columns', int(columns))
-            pd.set_option('display.width', 2000)
-            pd.set_option('display.float_format', '{:20,.2f}'.format)
-            pd.set_option('display.max_colwidth', None)
+            dfc = DataFrameCustom(rows=rows, max_columns=columns)
+            dfc.show_table()
 
             # with pandas.option_context('display.max_rows', int(rows),
             #                            'display.max_columns', int(columns)):
