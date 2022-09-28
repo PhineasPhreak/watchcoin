@@ -176,7 +176,7 @@ else:
         print(Utils.supported_currencies())
 
     elif args.format:
-        dfc = DataFrameCustom(rows=args.rows, max_columns=args.max_columns)
+        dfc = DataFrameCustom(max_rows=args.max_rows, max_columns=args.max_columns)
         dfc.show_table()
         print(Utils.categories_list(output_format=args.format))
 
@@ -186,20 +186,14 @@ else:
                          args_int=[args.per_page, args.page, args.rows,
                                    args.max_columns])
 
-        try:
-            print(Utils.markets(vs_currencies=args.vs_currencies,
-                                category=args.category,
-                                rows=args.rows,
-                                columns=args.max_columns,
-                                order=args.order,
-                                per_page=args.per_page,
-                                page=args.page,
-                                sparkline=args.sparkline))
-
-        except Exception as error:
-            print(f'\nWrong request, check the completeness '
-                  f'of the arguments and start again\n'
-                  f'Error Message : {error}')
+        print(Utils.markets(vs_currencies=args.vs_currencies,
+                            category=args.category,
+                            rows=args.rows,
+                            columns=args.max_columns,
+                            order=args.order,
+                            per_page=args.per_page,
+                            page=args.page,
+                            sparkline=args.sparkline))
 
     elif args.command == 'price':
         try:

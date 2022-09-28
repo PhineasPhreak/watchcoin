@@ -8,19 +8,23 @@ from timeit import timeit
 
 # LISTING POSSIBLE ERROR:
 # requests.exceptions.ConnectionError
-# socket.gaierror
 
 
 class DataFrameCustom:
     """
     Modification of a pandas array for rows and columns option
     """
-    def __init__(self, rows, max_columns):
+    def __init__(self, max_rows, max_columns):
         """Initialization"""
-        self.rows = rows
+        self.max_rows = max_rows
         self.max_columns = max_columns
 
     def show_table(self):
+        """
+        Show table with the specific max_row and max_columns with class
+        DataFrameCustom
+        """
+
         # Reset display to the defaults
         pd.reset_option('display.max_rows')
         pd.reset_option('display.max_columns')
@@ -30,7 +34,7 @@ class DataFrameCustom:
 
         # Config for display for DataFrame
         # https://thispointer.com/python-pandas-how-to-display-full-dataframe-i-e-print-all-rows-columns-without-truncation/
-        pd.set_option('display.max_rows', int(self.rows))
+        pd.set_option('display.max_rows', int(self.max_rows))
         pd.set_option('display.max_columns', int(self.max_columns))
         pd.set_option('display.width', 2000)
         pd.set_option('display.float_format', '{:20,.2f}'.format)
@@ -73,45 +77,60 @@ class Utils:
         """
         Check API server status
         """
-        cg_ping = Utils.requests_ping
-        answer_ping = requests.get(cg_ping).status_code
-        tmp_execution = timeit() * 60
-        tmp_second = "{:,.2f}sec".format(tmp_execution)
+        try:
+            cg_ping = Utils.requests_ping
+            answer_ping = requests.get(cg_ping).status_code
+            tmp_execution = timeit() * 60
+            tmp_second = "{:,.2f}sec".format(tmp_execution)
 
-        if visibility == 'quiet':
-            return f'Status : {answer_ping} in {tmp_second}'
-        elif visibility == 'verbose':
-            return f'Check API server Status : {answer_ping} ' \
-                   f'in {tmp_execution}'
+            if visibility == 'quiet':
+                return f'Status : {answer_ping} in {tmp_second}'
+            elif visibility == 'verbose':
+                return f'Check API server Status : {answer_ping} ' \
+                       f'in {tmp_execution}'
+
+        except requests.exceptions.ConnectionError as req_error:
+            return f'Failed to establish a connection\n\n' \
+                   f'{req_error.args}'
 
     @staticmethod
     def supported_currencies():
         """
         Get list of supported_vs_currencies
         """
-        cg_sp = Utils.requests_sp
-        answer_sp = requests.get(cg_sp).json()
-        return answer_sp
+        try:
+            cg_sp = Utils.requests_sp
+            answer_sp = requests.get(cg_sp).json()
+            return answer_sp
+
+        except requests.exceptions.ConnectionError as req_error:
+            return f'Failed to establish a connection\n\n' \
+                   f'{req_error.args}'
 
     @staticmethod
     def categories_list(output_format):
         """
         List all categories
         """
-        if output_format == 'table':
-            cg_sl = Utils.requests_sl
-            # pd.set_option('display.max_rows', None)
-            pd_categories = pd.read_json(cg_sl, orient='records')
-            pd_categories_df = pd.DataFrame(data=pd_categories,
-                                            columns=['category_id',
-                                                     'name'])
-            pd_markets_df_index = pd_categories_df.set_index('name')
-            return pd_markets_df_index
+        try:
+            if output_format == 'table':
+                cg_sl = Utils.requests_sl
+                # pd.set_option('display.max_rows', None)
+                pd_categories = pd.read_json(cg_sl, orient='records')
+                pd_categories_df = pd.DataFrame(data=pd_categories,
+                                                columns=['category_id',
+                                                         'name'])
+                pd_markets_df_index = pd_categories_df.set_index('name')
+                return pd_markets_df_index
 
-        elif output_format == 'json':
-            cg_sl = Utils.requests_sl
-            answer_sl = requests.get(cg_sl).json()
-            return answer_sl
+            elif output_format == 'json':
+                cg_sl = Utils.requests_sl
+                answer_sl = requests.get(cg_sl).json()
+                return answer_sl
+
+        except requests.exceptions.ConnectionError as req_error:
+            return f'Failed to establish a connection\n\n' \
+                   f'{req_error.args}'
 
     @staticmethod
     def markets(category, rows, columns, vs_currencies='usd',
@@ -145,10 +164,6 @@ class Utils:
         if rows and columns:
             dfc = DataFrameCustom(rows=rows, max_columns=columns)
             dfc.show_table()
-
-            # with pandas.option_context('display.max_rows', int(rows),
-            #                            'display.max_columns', int(columns)):
-            #     pass
 
         # Convert json format on DataFrame in pandas
         pd_markets = pd.read_json(cg_markets, orient='records')
