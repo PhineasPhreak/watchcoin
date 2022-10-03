@@ -162,7 +162,7 @@ class Utils:
         # answer_markets = requests.get(cg_markets).json()
 
         if rows and columns:
-            dfc = DataFrameCustom(rows=rows, max_columns=columns)
+            dfc = DataFrameCustom(max_rows=rows, max_columns=columns)
             dfc.show_table()
 
         # Convert json format on DataFrame in pandas
