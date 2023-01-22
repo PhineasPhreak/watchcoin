@@ -44,7 +44,7 @@ sl.add_argument(
 )
 sl.add_argument(
     "-r",
-    "--rows",
+    "--max-rows",
     default="25",
     type=int,
     metavar="numbers",
